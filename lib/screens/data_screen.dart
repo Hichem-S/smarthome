@@ -6,8 +6,16 @@ class DataScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data')),
-      body: const Center(child: Text('Data Screen')),
+      appBar: AppBar(
+        title: const Text('Data'),
+        backgroundColor: Colors.teal[700],
+      ),
+      body: const Center(
+        child: Text(
+          '** Data Screen **',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

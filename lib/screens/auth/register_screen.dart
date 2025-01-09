@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import '../../routes/app_routes.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -9,31 +10,34 @@ class RegisterScreen extends StatelessWidget {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>(); // Add a form key for validation
+  final _formKey = GlobalKey<FormState>();
 
   RegisterScreen({super.key});
 
   Future<void> _register(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      // Only proceed if all fields are valid
-      print('Register button pressed');
-      print('First Name: ${_firstNameController.text}');
-      print('Last Name: ${_lastNameController.text}');
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      print('Confirm Password: ${_confirmPasswordController.text}');
-
       if (_passwordController.text == _confirmPasswordController.text) {
         try {
-          print('Attempting to create user with Firebase');
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text,
-            password: _passwordController.text,
+          UserCredential userCredential =
+              await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
           );
-          print('User created successfully');
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+
+          // Send email verification
+          await userCredential.user?.sendEmailVerification();
+
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.scale,
+            title: 'Success',
+            desc: 'Account created successfully! Please verify your email.',
+            btnOkOnPress: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
+            },
+          ).show();
         } on FirebaseAuthException catch (e) {
-          print('FirebaseAuthException: ${e.message}');
           String errorMessage =
               'Registration error: ${e.message ?? "Unknown error"}';
           if (e.code == 'weak-password') {
@@ -41,15 +45,24 @@ class RegisterScreen extends StatelessWidget {
           } else if (e.code == 'email-already-in-use') {
             errorMessage = 'The account already exists for that email.';
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
-          );
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.error,
+            animType: AnimType.rightSlide,
+            title: 'Error',
+            desc: errorMessage,
+            btnOkOnPress: () {},
+          ).show();
         }
       } else {
-        print('Passwords do not match');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.warning,
+          animType: AnimType.bottomSlide,
+          title: 'Warning',
+          desc: 'Passwords do not match.',
+          btnOkOnPress: () {},
+        ).show();
       }
     }
   }
@@ -63,7 +76,7 @@ class RegisterScreen extends StatelessWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Form(
-              key: _formKey, // Assign the form key
+              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -86,7 +99,7 @@ class RegisterScreen extends StatelessWidget {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20), // Add spacing
+                  const SizedBox(height: 20),
                   _buildTextField(
                     controller: _lastNameController,
                     hintText: 'Last Name',
@@ -97,7 +110,7 @@ class RegisterScreen extends StatelessWidget {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20), // Add spacing
+                  const SizedBox(height: 20),
                   _buildTextField(
                     controller: _emailController,
                     hintText: 'Email',
@@ -105,14 +118,13 @@ class RegisterScreen extends StatelessWidget {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email';
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return 'Please enter a valid email (e.g., name@example.com)';
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20), // Add spacing
+                  const SizedBox(height: 20),
                   _buildPasswordField(
                     controller: _passwordController,
                     hintText: 'Password',
@@ -126,7 +138,7 @@ class RegisterScreen extends StatelessWidget {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20), // Add spacing
+                  const SizedBox(height: 20),
                   _buildPasswordField(
                     controller: _confirmPasswordController,
                     hintText: 'Confirm Password',
@@ -144,8 +156,8 @@ class RegisterScreen extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => _register(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal[700], // Background color
-                      foregroundColor: Colors.white, // Text color
+                      backgroundColor: Colors.teal[700],
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -190,7 +202,7 @@ class RegisterScreen extends StatelessWidget {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       ),
-      validator: validator, // Add validator
+      validator: validator,
     );
   }
 
@@ -213,7 +225,7 @@ class RegisterScreen extends StatelessWidget {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       ),
-      validator: validator, // Add validator
+      validator: validator,
     );
   }
 }

@@ -6,8 +6,16 @@ class ControlScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Control')),
-      body: const Center(child: Text('Control Screen')),
+      appBar: AppBar(
+        title: const Text('Control'),
+        backgroundColor: Colors.teal[700],
+      ),
+      body: const Center(
+        child: Text(
+          '** Control Screen **',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

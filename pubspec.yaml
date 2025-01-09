@@ -2,10 +2,10 @@ name: smart_home
 description: A new Flutter project for Smart Home Application.
 version: 1.0.0+1
 
-publish_to: 'none'  # Remove this line if you plan to publish your app
+publish_to: 'none' # Remove this line if you plan to publish your app
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"  # Make sure this matches your SDK version
+  sdk: ">=2.17.6 <3.0.0" # Ensure your Dart SDK version is compatible
 
 dependencies:
   flutter:
@@ -23,6 +23,8 @@ dependencies:
   provider: ^6.0.2
   flutter_bloc: ^8.0.1
   http: ^1.2.2
+  awesome_dialog: ^3.2.1 
+
 
 dev_dependencies:
   flutter_test:
