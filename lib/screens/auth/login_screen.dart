@@ -10,8 +10,10 @@ class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   Future<void> _login(BuildContext context) async {
-    if (_emailController.text.trim().isEmpty ||
-        _passwordController.text.trim().isEmpty) {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       _showErrorDialog(
         context,
         'Login Error',
@@ -23,8 +25,8 @@ class LoginScreen extends StatelessWidget {
     try {
       UserCredential credential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: email,
+        password: password,
       );
 
       if (credential.user != null && credential.user!.emailVerified) {
@@ -41,22 +43,18 @@ class LoginScreen extends StatelessWidget {
         ).show();
       }
     } on FirebaseAuthException catch (e) {
+      String errorMessage;
       if (e.code == 'user-not-found') {
-        _showErrorDialog(
-            context, 'Login Error', 'Email not found. Please register.');
+        errorMessage = 'Email not found. Please register.';
       } else if (e.code == 'wrong-password') {
-        _showErrorDialog(
-            context, 'Login Error', 'Incorrect password. Please try again.');
+        errorMessage = 'Incorrect password. Please try again.';
       } else if (e.code == 'invalid-email') {
-        _showErrorDialog(context, 'Login Error', 'Invalid email format.');
+        errorMessage = 'Invalid email format.';
       } else {
-        _showErrorDialog(
-          context,
-          'Login Error',
-          'An unexpected error occurred. Please try again later.',
-        );
+        errorMessage = 'An unexpected error occurred. Please try again.';
       }
-    } catch (e) {
+      _showErrorDialog(context, 'Login Error', errorMessage);
+    } catch (_) {
       _showErrorDialog(
         context,
         'Login Error',
@@ -66,7 +64,8 @@ class LoginScreen extends StatelessWidget {
   }
 
   Future<void> _resetPassword(BuildContext context) async {
-    if (_emailController.text.trim().isEmpty) {
+    String email = _emailController.text.trim();
+    if (email.isEmpty) {
       _showErrorDialog(
         context,
         'Reset Password Error',
@@ -76,9 +75,7 @@ class LoginScreen extends StatelessWidget {
     }
 
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: _emailController.text.trim(),
-      );
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       AwesomeDialog(
         context: context,
         dialogType: DialogType.success,
@@ -87,7 +84,7 @@ class LoginScreen extends StatelessWidget {
         desc: 'A password reset link has been sent to your email.',
         btnOkOnPress: () {},
       ).show();
-    } catch (e) {
+    } catch (_) {
       _showErrorDialog(
         context,
         'Reset Password Error',
@@ -130,41 +127,17 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Icon(Icons.home, size: 100, color: Colors.teal[300]),
                 const SizedBox(height: 50),
-                TextFormField(
+                _buildTextField(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 18,
-                    ),
-                  ),
+                  hintText: 'Email',
                 ),
                 const SizedBox(height: 20),
-                TextFormField(
+                _buildTextField(
                   controller: _passwordController,
+                  hintText: 'Password',
                   obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 18,
-                    ),
-                  ),
                 ),
-                const SizedBox(height: 40), // Space above the Login button
+                const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () => _login(context),
                   style: ElevatedButton.styleFrom(
@@ -180,14 +153,12 @@ class LoginScreen extends StatelessWidget {
                   ),
                   child: const Text('Login'),
                 ),
-                const SizedBox(
-                    height: 10), // Space between Login and Forgot Password
+                const SizedBox(height: 10),
                 TextButton(
                   onPressed: () => _resetPassword(context),
                   child: const Text('Forgot Password?'),
                 ),
-                const SizedBox(
-                    height: 5), // Space between Forgot Password and Register
+                const SizedBox(height: 5),
                 TextButton(
                   onPressed: () => Navigator.pushReplacementNamed(
                     context,
@@ -198,6 +169,30 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    bool obscureText = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hintText,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
         ),
       ),
     );

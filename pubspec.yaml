@@ -5,7 +5,7 @@ version: 1.0.0+1
 publish_to: 'none' # Remove this line if you plan to publish your app
 
 environment:
-  sdk: ">=2.17.6 <3.0.0" # Ensure your Dart SDK version is compatible
+  sdk: ">=2.17.0 <3.0.0" # Updated Dart SDK version for better compatibility
 
 dependencies:
   flutter:
@@ -23,13 +23,14 @@ dependencies:
   provider: ^6.0.2
   flutter_bloc: ^8.0.1
   http: ^1.2.2
-  awesome_dialog: ^3.2.1 
-
+  awesome_dialog: ^3.2.1
+  url_launcher: ^6.3.1
+  crypto: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^2.0.0 # Updated for compatibility with the Dart SDK
 
 flutter:
   uses-material-design: true

@@ -5,7 +5,8 @@ import '../screens/home_screen.dart';
 import '../screens/stream_screen.dart';
 import '../screens/control_screen.dart';
 import '../screens/data_screen.dart';
-import '../screens/profile_screen.dart'; // Import the profile screen
+import '../screens/profile_screen.dart';
+import '../screens/update_profile_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -15,17 +16,18 @@ class AppRoutes {
   static const String control = '/control';
   static const String data = '/data';
   static const String profile = '/profile';
+  static const String updateProfile = '/update-profile';
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
       login: (context) => LoginScreen(),
       register: (context) => RegisterScreen(),
-      home: (context) => HomeScreen(),
-      stream: (context) => StreamScreen(),
-      control: (context) => ControlScreen(),
-      data: (context) => DataScreen(),
-      profile: (context) =>
-          ProfileScreen(), // Correct reference to ProfileScreen
+      home: (context) => const HomeScreen(),
+      stream: (context) => const StreamScreen(),
+      control: (context) => const ControlScreen(),
+      data: (context) => const DataScreen(),
+      profile: (context) => const ProfileScreen(),
+      updateProfile: (context) => const UpdateProfileScreen(),
     };
   }
 }

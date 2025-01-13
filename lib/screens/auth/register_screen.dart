@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart'; // For hashing
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../../routes/app_routes.dart';
 
@@ -14,15 +17,40 @@ class RegisterScreen extends StatelessWidget {
 
   RegisterScreen({super.key});
 
+  /// Hash the password using SHA-256
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password); // Convert password to bytes
+    final hashed = sha256.convert(bytes); // Hash the password
+    return hashed.toString(); // Return the hashed password as a string
+  }
+
   Future<void> _register(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text == _confirmPasswordController.text) {
         try {
+          // Hash the password locally
+          String hashedPassword =
+              _hashPassword(_passwordController.text.trim());
+
+          // Create user account
           UserCredential userCredential =
               await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
+            password: _passwordController.text
+                .trim(), // Send raw password to FirebaseAuth
           );
+
+          // Get the user's unique UID
+          String uid = userCredential.user!.uid;
+
+          // Save user data and hashed password to Firestore
+          await FirebaseFirestore.instance.collection('users').doc(uid).set({
+            'firstName': _firstNameController.text.trim(),
+            'lastName': _lastNameController.text.trim(),
+            'email': _emailController.text.trim(),
+            'hashedPassword': hashedPassword, // Store hashed password
+            'createdAt': DateTime.now(),
+          });
 
           // Send email verification
           await userCredential.user?.sendEmailVerification();
