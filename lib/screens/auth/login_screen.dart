@@ -22,6 +22,12 @@ class LoginScreen extends StatelessWidget {
       return;
     }
 
+    // Check for admin credentials
+    if (email == 'admin' && password == 'admin') {
+      Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard);
+      return;
+    }
+
     try {
       UserCredential credential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(

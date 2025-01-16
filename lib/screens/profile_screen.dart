@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!confirmed) return;
 
     // Password input dialog
-    await showDialog(
+    final result = await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: const Text('Cancel'),
             ),
             TextButton(
@@ -91,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
 
-    if (passwordController.text.isEmpty) return;
+    if (result != true || passwordController.text.isEmpty) return;
 
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -104,16 +104,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
         await user.reauthenticateWithCredential(credential);
 
-        // Delete account from Firebase Authentication
-        await user.delete();
-
         // Delete user document from Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .delete();
 
-        // Navigate to login screen after dialog is dismissed
+        // Delete account from Firebase Authentication
+        await user.delete();
+
+        // Navigate to login screen after successful deletion
         AwesomeDialog(
           context: context,
           dialogType: DialogType.success,
